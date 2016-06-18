@@ -1,10 +1,10 @@
 package forever.software.free.com.wastingtime;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.view.Menu;
@@ -12,18 +12,19 @@ import android.view.MenuItem;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickListener {
 
-    TaskSmecher tSmech = new TaskSmecher();
-    private Calendar timeKeeper = Calendar.getInstance();
-    private Calendar realTime = Calendar.getInstance();
+    final private CountingTask taskOfMine = new CountingTask();
+    final private Calendar timeKeeper = Calendar.getInstance();
+    final private Calendar realTime = Calendar.getInstance();
 
 
-    private SimpleDateFormat timeFormater = new SimpleDateFormat("HH'h'mm'm'ss's'");
-    private SimpleDateFormat hrsFormater = new SimpleDateFormat("HH'h'");
-    private SimpleDateFormat minFormater = new SimpleDateFormat("mm'm'");
-    private SimpleDateFormat secFormater = new SimpleDateFormat("ss's'");
+    final private SimpleDateFormat timeFormatter = new SimpleDateFormat("HH'h'mm'm'ss's'", Locale.US);
+    final private SimpleDateFormat hrsFormatter = new SimpleDateFormat("HH'h'", Locale.US);
+    final private SimpleDateFormat minFormatter = new SimpleDateFormat("mm'm'", Locale.US);
+    final private SimpleDateFormat secFormatter = new SimpleDateFormat("ss's'", Locale.US);
 
     private TextView worldTime;
     private TextView hrs;
@@ -36,8 +37,6 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         freeloaders = (TextView) findViewById(R.id.freeloaders);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_the_time_we_loose);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
 
         worldTime = (TextView) findViewById(R.id.one_time);
@@ -46,7 +45,11 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         sec = (TextView) findViewById(R.id.sec_you_loose);
 
         resetTime();
-        tSmech.execute(this);
+        try {
+            taskOfMine.execute(this);
+        } catch (Exception e) {
+            Log.d("onCreate:caught", e.getLocalizedMessage());
+        }
 
     }
 
@@ -59,13 +62,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        return (item.getItemId() == R.id.action_settings || super.onOptionsItemSelected(item));
     }
 
     private void resetTime(){
@@ -82,13 +79,15 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
     public void onBackPressed() {
         super.onBackPressed();
         //resetTime();
-        tSmech.cancel(true);
+        taskOfMine.cancel(true);
     }
 
     @Override
     public void onClick(View v) {
         TextView freeloaders = (TextView) findViewById(R.id.freeloaders);
-        switch (v.getId()){
+        //TODO: this ID driven update logic has to be replaced with gesture control.
+       /*
+         switch (v.getId()){
             case R.id.freeload_reduce:{
                 int count = Integer.parseInt(""+freeloaders.getText());
                 if(count>1){
@@ -101,13 +100,12 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
                 count++;
                 freeloaders.setText(""+count);
             } break;
-        }
+        }*/
     }
 
-    public class TaskSmecher extends AsyncTask {
-        private final Activity act = getParent();
+    public class CountingTask extends AsyncTask {
 
-        private long REFRESHFREQ = 1000; /* ms */
+        final private long REFRESH_FREQ = 1000; /* ms */
 
         @Override
         protected Object doInBackground(Object[] params) {
@@ -116,28 +114,29 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
                 int mul = getIntFromTextView((TextView) findViewById(R.id.freeloaders));
                 try {
                     long current = timeKeeper.getTime().getTime();
-                    timeKeeper.setTimeInMillis(current + (REFRESHFREQ * mul));
+                    timeKeeper.setTimeInMillis(current + (REFRESH_FREQ * mul));
 
                     long realCurrent = realTime.getTime().getTime();
-                    realTime.setTimeInMillis(realCurrent + REFRESHFREQ);
+                    realTime.setTimeInMillis(realCurrent + REFRESH_FREQ);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             updateText();
                         }
                     });
-                    Thread.sleep(REFRESHFREQ);
+                    Thread.sleep(REFRESH_FREQ);
                 }catch (Exception e){
+                    Log.d("Was unable to: ", e.getLocalizedMessage());
                 }
             }
             return true;
         }
 
         private void updateText(){
-            worldTime.setText(timeFormater.format(realTime.getTime()));
-            hrs.setText(hrsFormater.format(timeKeeper.getTime()));
-            min.setText(minFormater.format(timeKeeper.getTime()));
-            sec.setText(secFormater.format(timeKeeper.getTime()));
+            worldTime.setText(timeFormatter.format(realTime.getTime()));
+            hrs.setText(hrsFormatter.format(timeKeeper.getTime()));
+            min.setText(minFormatter.format(timeKeeper.getTime()));
+            sec.setText(secFormatter.format(timeKeeper.getTime()));
         }
 
         private Integer getIntFromTextView(TextView v){
