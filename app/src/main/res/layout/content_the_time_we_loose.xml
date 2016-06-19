@@ -2,57 +2,100 @@
 <LinearLayout android:orientation="vertical"
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    android:layout_height="match_parent"
+    android:gravity="center_vertical|center_horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right">
+            <ImageView
+                android:id="@+id/session_decision"
+                android:layout_marginRight="6sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:src="@drawable/session_decision"/>
+        </LinearLayout>
         <TextView
             android:id="@+id/hrs_you_loose"
-            android:textSize="96sp"
             android:text="00"
+            android:textSize="84sp"
             android:textStyle="bold"
             android:textColor="@color/colorPrimary"
             android:layout_columnWeight="10"
             android:layout_gravity="center"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content" />
-
+            android:layout_width="wrap_content"/>
         <TextView
             android:id="@+id/min_you_loose"
-            android:textSize="92sp"
             android:text="00"
+            android:textSize="84sp"
             android:textStyle="bold"
             android:textColor="@color/colorPrimaryDark"
             android:layout_columnWeight="10"
             android:layout_gravity="center|top"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"  />
+            android:layout_width="wrap_content"/>
         <TextView
             android:id="@+id/sec_you_loose"
-            android:textSize="86sp"
             android:text="00"
+            android:textSize="84sp"
             android:textStyle="bold"
             android:textColor="@color/colorAccent"
             android:layout_columnWeight="10"
             android:layout_gravity="center|top"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"  />
-        <TextView
-            android:layout_row="3" android:layout_column="4" android:layout_columnSpan="6"
-            android:id="@+id/one_time"
-            android:textSize="48sp"
-            android:text="00h00m00s"
-            android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_gravity="center|top"
+            android:layout_width="wrap_content"/>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"  />
-        <TextView
-            android:text="1"
-            android:id="@+id/freeloaders"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="bold"
-            android:textSize="60sp"
-            android:layout_gravity="center|top"
+            android:layout_gravity="center">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/hourglass_48"/>
+                <TextView
+                    android:id="@+id/one_time"
+                    android:textSize="48sp"
+                    android:text="00h00m00s"
+                    android:textStyle="bold"
+                    android:textColor="#000000"
+                    android:layout_gravity="center|top"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"  />
-
+            android:layout_gravity="center">
+                <ImageView
+                    android:id="@+id/remFreelaoders"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:layout_marginRight="50sp"
+                    android:src="@drawable/remove_free_loaders"/>
+                <TextView
+                    android:text="1"
+                    android:id="@+id/freeloaders"
+                    android:textColor="#FFFFFF"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textSize="60sp"
+                    android:layout_width="84sp"
+                    android:layout_height="84sp"
+                    android:background="@drawable/cop_flat_button"
+                    android:layout_gravity="center|top"/>
+                <ImageView
+                    android:id="@+id/addFreelaoders"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50sp"
+                    android:layout_gravity="center_vertical|right"
+                    android:src="@drawable/add_free_loaders"/>
+        </LinearLayout>
 </LinearLayout>
