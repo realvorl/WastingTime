@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -78,8 +77,6 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        //resetTime();
-        taskOfMine.cancel(true);
     }
 
     @Override

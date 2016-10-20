@@ -5,18 +5,6 @@
     android:layout_height="match_parent"
     android:gravity="center_vertical|center_horizontal"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right">
-            <ImageView
-                android:id="@+id/session_decision"
-                android:layout_marginRight="6sp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="left"
-                android:src="@drawable/session_decision"/>
-        </LinearLayout>
         <TextView
             android:id="@+id/hrs_you_loose"
             android:text="00"
