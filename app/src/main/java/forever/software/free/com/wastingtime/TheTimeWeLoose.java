@@ -1,12 +1,11 @@
 package forever.software.free.com.wastingtime;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +26,8 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
     private TextView min;
     private TextView sec;
 
+    private int mul;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -41,7 +42,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
         findViewById(R.id.addFreelaoders).setOnClickListener(this);
         findViewById(R.id.remFreelaoders).setOnClickListener(this);
-        findViewById(R.id.session_decision).setOnClickListener(this);
+        findViewById(R.id.freeloaders).setOnClickListener(this);
 
         resetTime();
         try {
@@ -82,7 +83,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         //TODO: this ID driven update logic has to be replaced with gesture control.
-        final TextView freeloaders = (TextView) findViewById(R.id.freeloaders);
+        final EditText freeloaders = (EditText) findViewById(R.id.freeloaders);
         switch (v.getId()) {
             case R.id.remFreelaoders: {
                 int count = Integer.parseInt("" + freeloaders.getText());
@@ -98,26 +99,6 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
                 freeloaders.setText("" + count);
             }
             break;
-            case R.id.session_decision: {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-                alertDialogBuilder.setPositiveButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        int howMany = Integer.parseInt(""+freeloaders.getText());
-                        long meetingTime = realTime.getTime().getTime();
-                        long _commonTime = timeKeeper.getTime().getTime();
-                        
-                    }
-                });
-                alertDialogBuilder.setNegativeButton("Reset", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-                alertDialogBuilder.create().show();
-            }
-            break;
         }
     }
     public class CountingTask extends AsyncTask {
@@ -128,7 +109,10 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         protected Object doInBackground(Object[] params) {
 
             while(!this.isCancelled()){
-                int mul = getIntFromTextView((TextView) findViewById(R.id.freeloaders));
+                Integer newMul = getIntFromTextView((EditText) findViewById(R.id.freeloaders));
+                if (newMul == null ) mul = 1;
+                else mul = newMul;
+
                 try {
                     long current = timeKeeper.getTime().getTime();
                     timeKeeper.setTimeInMillis(current + (REFRESH_FREQ * mul));
@@ -158,8 +142,9 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
         private Integer getIntFromTextView(TextView v){
             CharSequence pureText = v.getText();
-            pureText = pureText.toString().replace(":","");
-            return Integer.parseInt(""+pureText);
+            pureText = pureText.toString().trim().replaceAll("\\D","");
+            if (pureText!=null && pureText.length() > 0) return Integer.parseInt(pureText.toString());
+            return mul;
         }
 
     }
