@@ -1,23 +1,23 @@
 package forever.software.free.com.wastingtime;
 
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.util.Calendar;
 
 public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickListener {
 
-    final private CountingTask taskOfMine = new CountingTask();
-    final private Calendar timeKeeper = Calendar.getInstance();
-    final private Calendar realTime = Calendar.getInstance();
-
+    private CountingTask taskOfMine;
+    private Calendar timeKeeper = Calendar.getInstance();
+    private Calendar realTime = Calendar.getInstance();
 
     private final TimeFormaters timeFormaters = new TimeFormaters();
 
@@ -45,10 +45,13 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.freeloaders).setOnClickListener(this);
 
         resetTime();
+        restorePreferences();
+        taskOfMine = new CountingTask();
+
         try {
             taskOfMine.execute(this);
         } catch (Exception e) {
-            Log.d("onCreate:caught", e.getLocalizedMessage());
+            Log.d("onCreate:caught: ", e.getLocalizedMessage());
         }
 
     }
@@ -65,19 +68,50 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         return (item.getItemId() == R.id.action_settings || super.onOptionsItemSelected(item));
     }
 
-    private void resetTime(){
-        timeKeeper.set(Calendar.HOUR_OF_DAY,0);
-        timeKeeper.set(Calendar.MINUTE,0);
-        timeKeeper.set(Calendar.SECOND,0);
+    private void resetTime() {
+        timeKeeper.set(Calendar.HOUR_OF_DAY, 0);
+        timeKeeper.set(Calendar.MINUTE, 0);
+        timeKeeper.set(Calendar.SECOND, 0);
 
-        realTime.set(Calendar.HOUR_OF_DAY,0);
-        realTime.set(Calendar.MINUTE,0);
-        realTime.set(Calendar.SECOND,0);
+        realTime.set(Calendar.HOUR_OF_DAY, 0);
+        realTime.set(Calendar.MINUTE, 0);
+        realTime.set(Calendar.SECOND, 0);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savePreferences();
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        restorePreferences();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        savePreferences();
+    }
+
+    private void savePreferences() {
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong("realTimeLast", realTime.getTimeInMillis());
+        editor.putLong("timeKeeperLast", timeKeeper.getTimeInMillis());
+        editor.putInt("freeloaders", mul);
+        editor.commit();   // I missed to save the data to preference here,.
+    }
+
+    private void restorePreferences() {
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        long realTimeLast = sharedPreferences.getLong("realTimeLast", 0);
+        if (realTimeLast != 0) realTime.setTimeInMillis(realTimeLast);
+        long timeKeeperLast = sharedPreferences.getLong("timeKeeperLast", 0);
+        if (timeKeeperLast != 0) realTime.setTimeInMillis(timeKeeperLast);
+        mul = sharedPreferences.getInt("freeloaders", 1);
     }
 
     @Override
@@ -101,16 +135,17 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
             break;
         }
     }
+
     public class CountingTask extends AsyncTask {
 
-        final private long REFRESH_FREQ = 1000; /* ms */
+        final private long REFRESH_FREQ = 1_000; /* ms */
 
         @Override
         protected Object doInBackground(Object[] params) {
 
-            while(!this.isCancelled()){
+            while (!this.isCancelled()) {
                 Integer newMul = getIntFromTextView((EditText) findViewById(R.id.freeloaders));
-                if (newMul == null ) mul = 1;
+                if (newMul == null) mul = 1;
                 else mul = newMul;
 
                 try {
@@ -126,24 +161,25 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
                         }
                     });
                     Thread.sleep(REFRESH_FREQ);
-                }catch (Exception e){
+                } catch (Exception e) {
                     Log.d("Was unable to: ", e.getLocalizedMessage());
                 }
             }
             return true;
         }
 
-        private void updateText(){
+        private void updateText() {
             worldTime.setText(timeFormaters.timeFormatter.format(realTime.getTime()));
             hrs.setText(timeFormaters.hrsFormatter.format(timeKeeper.getTime()));
             min.setText(timeFormaters.minFormatter.format(timeKeeper.getTime()));
             sec.setText(timeFormaters.secFormatter.format(timeKeeper.getTime()));
         }
 
-        private Integer getIntFromTextView(TextView v){
+        private Integer getIntFromTextView(TextView v) {
             CharSequence pureText = v.getText();
-            pureText = pureText.toString().trim().replaceAll("\\D","");
-            if (pureText!=null && pureText.length() > 0) return Integer.parseInt(pureText.toString());
+            pureText = pureText.toString().trim().replaceAll("\\D", "");
+            if (pureText != null && pureText.length() > 0)
+                return Integer.parseInt(pureText.toString());
             return mul;
         }
 
