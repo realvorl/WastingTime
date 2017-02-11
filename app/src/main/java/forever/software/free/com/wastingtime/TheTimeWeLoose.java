@@ -15,17 +15,16 @@ import java.util.Calendar;
 
 public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickListener {
 
-    private CountingTask taskOfMine;
-    private Calendar timeKeeper = Calendar.getInstance();
-    private Calendar realTime = Calendar.getInstance();
-
     private final TimeFormaters timeFormaters = new TimeFormaters();
+
+    private Calendar meetingTime = Calendar.getInstance();
+    private Calendar realTime = Calendar.getInstance();
+    private CountingTask countingTask;
 
     private TextView worldTime;
     private TextView hrs;
     private TextView min;
     private TextView sec;
-
     private int mul;
 
     @Override
@@ -46,10 +45,10 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
         resetTime();
         restorePreferences();
-        taskOfMine = new CountingTask();
+        countingTask = new CountingTask();
 
         try {
-            taskOfMine.execute(this);
+            countingTask.execute(this);
         } catch (Exception e) {
             Log.d("onCreate:caught: ", e.getLocalizedMessage());
         }
@@ -69,9 +68,9 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
     }
 
     private void resetTime() {
-        timeKeeper.set(Calendar.HOUR_OF_DAY, 0);
-        timeKeeper.set(Calendar.MINUTE, 0);
-        timeKeeper.set(Calendar.SECOND, 0);
+        meetingTime.set(Calendar.HOUR_OF_DAY, 0);
+        meetingTime.set(Calendar.MINUTE, 0);
+        meetingTime.set(Calendar.SECOND, 0);
 
         realTime.set(Calendar.HOUR_OF_DAY, 0);
         realTime.set(Calendar.MINUTE, 0);
@@ -100,7 +99,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putLong("realTimeLast", realTime.getTimeInMillis());
-        editor.putLong("timeKeeperLast", timeKeeper.getTimeInMillis());
+        editor.putLong("timeKeeperLast", meetingTime.getTimeInMillis());
         editor.putInt("freeloaders", mul);
         editor.commit();   // I missed to save the data to preference here,.
     }
@@ -110,7 +109,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         long realTimeLast = sharedPreferences.getLong("realTimeLast", 0);
         if (realTimeLast != 0) realTime.setTimeInMillis(realTimeLast);
         long timeKeeperLast = sharedPreferences.getLong("timeKeeperLast", 0);
-        if (timeKeeperLast != 0) realTime.setTimeInMillis(timeKeeperLast);
+        if (timeKeeperLast != 0) meetingTime.setTimeInMillis(timeKeeperLast);
         mul = sharedPreferences.getInt("freeloaders", 1);
     }
 
@@ -149,8 +148,8 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
                 else mul = newMul;
 
                 try {
-                    long current = timeKeeper.getTime().getTime();
-                    timeKeeper.setTimeInMillis(current + (REFRESH_FREQ * mul));
+                    long current = meetingTime.getTime().getTime();
+                    meetingTime.setTimeInMillis(current + (REFRESH_FREQ * mul));
 
                     long realCurrent = realTime.getTime().getTime();
                     realTime.setTimeInMillis(realCurrent + REFRESH_FREQ);
@@ -170,9 +169,9 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
         private void updateText() {
             worldTime.setText(timeFormaters.timeFormatter.format(realTime.getTime()));
-            hrs.setText(timeFormaters.hrsFormatter.format(timeKeeper.getTime()));
-            min.setText(timeFormaters.minFormatter.format(timeKeeper.getTime()));
-            sec.setText(timeFormaters.secFormatter.format(timeKeeper.getTime()));
+            hrs.setText(timeFormaters.hrsFormatter.format(meetingTime.getTime()));
+            min.setText(timeFormaters.minFormatter.format(meetingTime.getTime()));
+            sec.setText(timeFormaters.secFormatter.format(meetingTime.getTime()));
         }
 
         private Integer getIntFromTextView(TextView v) {
