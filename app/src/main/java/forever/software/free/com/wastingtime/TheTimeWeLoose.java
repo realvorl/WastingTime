@@ -101,7 +101,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         editor.putLong("realTimeLast", realTime.getTimeInMillis());
         editor.putLong("timeKeeperLast", meetingTime.getTimeInMillis());
         editor.putInt("freeloaders", mul);
-        editor.commit();   // I missed to save the data to preference here,.
+        editor.apply();   // I missed to save the data to preference here,.
     }
 
     private void restorePreferences() {
@@ -144,8 +144,12 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
             while (!this.isCancelled()) {
                 Integer newMul = getIntFromTextView((EditText) findViewById(R.id.freeloaders));
-                if (newMul == null) mul = 1;
-                else mul = newMul;
+
+                try {
+                    mul = newMul;
+                } catch (Exception npeoe) {
+                    mul = 1;
+                }
 
                 try {
                     long current = meetingTime.getTime().getTime();
@@ -153,12 +157,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
                     long realCurrent = realTime.getTime().getTime();
                     realTime.setTimeInMillis(realCurrent + REFRESH_FREQ);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateText();
-                        }
-                    });
+                    runOnUiThread(this::updateText);
                     Thread.sleep(REFRESH_FREQ);
                 } catch (Exception e) {
                     Log.d("Was unable to: ", e.getLocalizedMessage());
