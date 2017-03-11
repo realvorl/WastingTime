@@ -13,13 +13,15 @@ import android.widget.TextView;
 
 import java.util.Calendar;
 
+import static java.lang.Integer.parseInt;
+import static java.lang.String.valueOf;
+
 public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickListener {
 
     private final TimeFormaters timeFormaters = new TimeFormaters();
 
     private Calendar meetingTime = Calendar.getInstance();
     private Calendar realTime = Calendar.getInstance();
-    private CountingTask countingTask;
 
     private TextView worldTime;
     private TextView hrs;
@@ -45,7 +47,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
         resetTime();
         restorePreferences();
-        countingTask = new CountingTask();
+        CountingTask countingTask = new CountingTask();
 
         try {
             countingTask.execute(this);
@@ -118,24 +120,30 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         //TODO: this ID driven update logic has to be replaced with gesture control.
         final EditText freeloaders = (EditText) findViewById(R.id.freeloaders);
         switch (v.getId()) {
-            case R.id.remFreelaoders: {
-                int count = Integer.parseInt("" + freeloaders.getText());
-                if (count > 1) {
-                    --count;
-                    freeloaders.setText("" + count);
-                }
-            }
-            break;
-            case R.id.addFreelaoders: {
-                int count = Integer.parseInt("" + freeloaders.getText());
-                count++;
-                freeloaders.setText("" + count);
-            }
-            break;
+            case R.id.remFreelaoders:
+                updateFreeloadersBy(freeloaders, -1);
+                break;
+            case R.id.addFreelaoders:
+                updateFreeloadersBy(freeloaders, 1);
+                break;
         }
     }
 
-    public class CountingTask extends AsyncTask {
+    private void updateFreeloadersBy(EditText freeloaders, int offset) {
+        try {
+            int currentValue = parseInt("" + freeloaders.getText());
+            int updateValue = currentValue + offset;
+            if ((updateValue) > 0) {
+                freeloaders.setText(valueOf(updateValue));
+            } else {
+                throw new NumberFormatException("Unacceptable action for current value.");
+            }
+        } catch (Exception e) {
+            freeloaders.setText("1");
+        }
+    }
+
+    private class CountingTask extends AsyncTask {
 
         final private long REFRESH_FREQ = 1_000; /* ms */
 
@@ -143,18 +151,14 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         protected Object doInBackground(Object[] params) {
 
             while (!this.isCancelled()) {
-                Integer newMul = getIntFromTextView((EditText) findViewById(R.id.freeloaders));
-
                 try {
-                    mul = newMul;
-                } catch (Exception npeoe) {
+                    mul = getIntFromTextView((EditText) findViewById(R.id.freeloaders));
+                } catch (Exception nPE) {
                     mul = 1;
                 }
-
                 try {
                     long current = meetingTime.getTime().getTime();
                     meetingTime.setTimeInMillis(current + (REFRESH_FREQ * mul));
-
                     long realCurrent = realTime.getTime().getTime();
                     realTime.setTimeInMillis(realCurrent + REFRESH_FREQ);
                     runOnUiThread(this::updateText);
@@ -177,7 +181,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
             CharSequence pureText = v.getText();
             pureText = pureText.toString().trim().replaceAll("\\D", "");
             if (pureText != null && pureText.length() > 0)
-                return Integer.parseInt(pureText.toString());
+                return parseInt(pureText.toString());
             return mul;
         }
 
