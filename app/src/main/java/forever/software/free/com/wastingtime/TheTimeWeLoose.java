@@ -46,7 +46,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
         findViewById(R.id.freeloaders).setOnClickListener(this);
 
         resetTime();
-        restorePreferences();
+        //restorePreferences();
         CountingTask countingTask = new CountingTask();
 
         try {
@@ -82,19 +82,19 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        savePreferences();
+        //savePreferences();
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        restorePreferences();
+        //restorePreferences();
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        savePreferences();
+        //savePreferences();
     }
 
     private void savePreferences() {
