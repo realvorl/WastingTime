@@ -22,7 +22,7 @@ public class TimeFormatersTest {
     }
 
     @Test
-    public void testFormatHours() {
+    public void testFormatHours(){
         Date testDate = new Date(123123123123123L);
         String formatedDate = classUnderTest.hrsFormatter.format(testDate);
         assertThat(formatedDate, is("05h"));

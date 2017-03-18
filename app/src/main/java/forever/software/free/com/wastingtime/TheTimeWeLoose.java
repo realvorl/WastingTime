@@ -1,22 +1,27 @@
 package forever.software.free.com.wastingtime;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
 
-public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickListener {
+public class TheTimeWeLoose extends AppCompatActivity implements OnClickListener {
 
     private final TimeFormaters timeFormaters = new TimeFormaters();
 
@@ -43,7 +48,9 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
         findViewById(R.id.addFreelaoders).setOnClickListener(this);
         findViewById(R.id.remFreelaoders).setOnClickListener(this);
-        findViewById(R.id.freeloaders).setOnClickListener(this);
+        EditText freeLoaders = (EditText) findViewById(R.id.freeloaders);
+        freeLoaders.setOnClickListener(this);
+        freeLoaders.setCursorVisible(false);
 
         resetTime();
         //restorePreferences();
@@ -93,8 +100,11 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        //savePreferences();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Save session first ?").setTitle("Attention!");
+        builder.setPositiveButton("Yes", (dialog, which) -> {savePreferences();});
+        builder.setNegativeButton("No", (dialog, which) -> {super.onBackPressed();});
+        builder.create().show();
     }
 
     private void savePreferences() {
@@ -119,9 +129,12 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
     public void onClick(View v) {
         //TODO: this ID driven update logic has to be replaced with gesture control.
         final EditText freeloaders = (EditText) findViewById(R.id.freeloaders);
+
         switch (v.getId()) {
             case R.id.remFreelaoders:
                 updateFreeloadersBy(freeloaders, -1);
+
+
                 break;
             case R.id.addFreelaoders:
                 updateFreeloadersBy(freeloaders, 1);
@@ -149,11 +162,11 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
 
         @Override
         protected Object doInBackground(Object[] params) {
-
             while (!this.isCancelled()) {
                 try {
-                    mul = getIntFromTextView((EditText) findViewById(R.id.freeloaders));
+                    mul = formatAndReturnMultiplier((EditText) findViewById(R.id.freeloaders));
                 } catch (Exception nPE) {
+                    // the code must never break!
                     mul = 1;
                 }
                 try {
@@ -167,6 +180,7 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
                     Log.d("Was unable to: ", e.getLocalizedMessage());
                 }
             }
+
             return true;
         }
 
@@ -177,8 +191,13 @@ public class TheTimeWeLoose extends AppCompatActivity implements View.OnClickLis
             sec.setText(timeFormaters.secFormatter.format(meetingTime.getTime()));
         }
 
-        private Integer getIntFromTextView(TextView v) {
-            CharSequence pureText = v.getText();
+        private Integer formatAndReturnMultiplier(EditText freeloaders) {
+            if (freeloaders.getText().length() > 2) {
+                freeloaders.setTextSize(30);
+            } else {
+                freeloaders.setTextSize(40);
+            }
+            CharSequence pureText = freeloaders.getText();
             pureText = pureText.toString().trim().replaceAll("\\D", "");
             if (pureText != null && pureText.length() > 0)
                 return parseInt(pureText.toString());
